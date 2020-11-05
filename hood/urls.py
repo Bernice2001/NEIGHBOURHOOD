@@ -6,10 +6,10 @@ from django.conf.urls.static import static
 urlpatterns=[
     path('', views.index, name='index'),
     path('info/', views.info, name='info'),
-    path('accounts/', include('django_registration.backends.one_step.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('logout/', views.logout, name='logout'),
+    path('accounts/login', views.login, name='login'),
 
-
+    
     # path('neighbourhood/<int:id>/', views.index, name='index'),
     # path('signup/', views.signup, name='signup'),
     # path('logout/', views.logout, name='logout'),
