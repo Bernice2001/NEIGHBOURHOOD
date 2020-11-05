@@ -1,79 +1,90 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
 from django.contrib.auth.models import User
-# Create your models here.
+from django.shortcuts import get_object_or_404
 
-class Neighbour(models.Model):
-    name=models.CharField(max_length=250)
-    location=models.CharField(max_length=220)
-    occupationCount=models.IntegerField()
-    police=models.CharField(max_length=50,blank=True)
-    hospital=models.CharField(max_length=60,blank=True)
 
+class Hood(models.Model):   
+    hood_name = models.CharField(max_length=120)
+    
     def __str__(self):
-        return self.name
+        return self.hood_name
+    
 
-    def create_neigborhood(self):
+class Neighbourhood(models.Model): 
+    neighbourhood = models.ForeignKey(Hood, on_delete=models.CASCADE, related_name='hood')  
+    location = models.CharField(max_length=120, default='Kenya')
+    population = models.IntegerField(default=0)
+    admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_name', default=1)
+    
+    def __str__(self):
+        return self.neighbourhood.hood_name
+    
+    def save_image(self):
         self.save()
-
-    def delete_neigborhood(self):
-        neigbour=Neighbour.objects.all().delete()
-        return neigbour
+        
+    def delete_image(self):
+        self.delete()
+        
+    def find_neighbourhood(self, pk):
+        hood = get_object_or_404(Neighbourhood, id=pk)
+        return Neighbourhood.objects.filter(Neighbourhood=hood)
+    
     @classmethod
-    def find_neigborhood(cls,neigborhood_id):
-        neigbour=cls.objects.filter(id=neigborhood_id)
-        return neigbour
-
+    def update_neighbourhood(cls, id, value):
+        cls.objects.filter(id=id).update(population=value)
+        
+    @classmethod
+    def update_count(cls, id, value):
+        cls.objects.filter(id=id).update(population=value).count()
 
 class Profile(models.Model):
-    fullname=models.CharField(max_length=50)
-    image=models.ImageField(upload_to='profile/',blank=True)
-    neigbour=models.ForeignKey(Neighbour,on_delete=models.CASCADE)
-    location=models.CharField(max_length=50)
-    secondaryEmail=models.EmailField(max_length=50)
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    bio = models.TextField(max_length=120)
+    hood = models.ForeignKey(Neighbourhood, on_delete=models.CASCADE)
+    
     def __str__(self):
-        return self.fullname
-    class Meta:
-        pass
+        return self.user.username
+        
 
-
-class Businesses(models.Model):
-    businessesName=models.CharField(max_length=100)
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
-    neigbour=models.ForeignKey(Neighbour,on_delete=models.CASCADE)
-    email=models.EmailField(max_length=50)
-
+class Business(models.Model):
+    name = models.CharField(max_length=150, null=True, blank=True)
+    description = models.TextField(max_length=1000, verbose_name='job_description')
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='business_user')
+    neighbourhood = models.ForeignKey(Neighbourhood, on_delete=models.CASCADE)
+    business_email = models.EmailField(max_length=254)
+    
     def __str__(self):
-        return self.businessesName
-
-    def create_business(self):
+        return self.name
+    
+    def save_image(self):
         self.save()
-    def delete_business(self):
-        busines=Businesses.objects.all().delete()
-        return busines
-
-    def update_business(self):
-        updated=Businesses.objects.filter(id=1).update(businessesName='collo')
-        return updated
+        
+    def delete_image(self):
+        self.delete()
+        
+    def find_business(self, pk):
+        work = get_object_or_404(Business, id=pk)
+        return Business.objects.filter(name=work)
+   
     @classmethod
-    def find_business(cls,business_id):
-        busines=cls.objects.filter(id=business_id)
-        return busines
-
+    def update_business(cls, id, value):
+        cls.objects.filter(id=id).update(name=value)
+        
     @classmethod
-    def search_business(cls,name):
-        busines=cls.objects.filter(businessesName__icontains=name)
-        return busines
-
-
-class Feeds(models.Model):
-    image=models.ImageField(upload_to='feeds/',blank=True)
-    post=models.CharField(max_length=200)
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
-    neigbour=models.ForeignKey(Neighbour,on_delete=models.CASCADE)
-
+    def search_business(cls,search_term):
+        job = Business.objects.filter(name__icontains=search_term)
+        return job
+    
+class Post(models.Model):
+    image = CloudinaryField('image')
+    title = models.CharField(max_length=120)
+    description = models.TextField(max_length=1000, verbose_name='Description')
+    date = models.DateTimeField(auto_now_add=True)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='your_profile')
+    neighbour = models.ForeignKey(Hood, on_delete=models.CASCADE, related_name='neighbour_name')  
+    
     def __str__(self):
-        return self.post
+        return self.title
 
-    def save_post(self):
-        self.save()
+    

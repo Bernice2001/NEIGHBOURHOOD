@@ -16,9 +16,9 @@
 <body>
   {% include "navbar.html" %}
   <div class="container mt-3">
-      <h2>Registration Successful.</h2>
-      <p>Click the button below to continue to homepage.</p>
-      <a href="/">Home</a>
+      <h2>You have sucessfully created a neighbourhood account!.</h2>
+      <p>Click the button below to continue to set up <br> your neighbourhood account. </p>
+      <a href="{% url 'account' request.user.username">Profile</a>
 </div>
     <!-- JQuery -->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

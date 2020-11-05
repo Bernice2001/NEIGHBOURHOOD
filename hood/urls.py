@@ -8,6 +8,7 @@ urlpatterns=[
     path('info/', views.info, name='info'),
     path('logout/', views.logout, name='logout'),
     path('accounts/login', views.login, name='login'),
+    path('new_hood/<username>', views.new_account, name='account'),
 
     
     # path('neighbourhood/<int:id>/', views.index, name='index'),
